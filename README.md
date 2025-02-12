@@ -1,2 +1,17 @@
 # nodeServer
-## node modules не перенеслись тк там больше 100 файлов, гит их не принял
+## Установка зависимостей
+```npm
+npm install
+```
+## Запуск ```PostgeSQL```
+```docker
+docker-compose up -d
+```
+## Запуск ```Redis```
+```docker
+docker run -p 6379:6379 -it redis/redis-stack-server:latest
+```
+## Запуск проекта
+```npm
+node server.js
+```
