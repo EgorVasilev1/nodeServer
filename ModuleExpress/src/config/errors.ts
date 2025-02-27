@@ -10,7 +10,7 @@ export class Errors extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 
-    send(res: Response): Response {
+    send(res: Response, message: string, statusCode: number): Response {
         return res.status(this.statusCode).json({
             error: this.message,
         });

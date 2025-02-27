@@ -1,12 +1,13 @@
 const http = require('http');
 const hostname = '127.0.0.1';
-const port = 8083;
+const port = 8084;
 const jwt = require('jsonwebtoken');
 const { Client } = require('pg');
 const RedisClient = require('./cache');
 const bcrypt = require('bcryptjs');
 const express = require('express');
 const app = express();
+exports.app = app;
 const listEndpoints = require('express-list-endpoints');
 const morgan = require('morgan');
 
@@ -71,11 +72,6 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-async function add() {
-  const addDBData = await client.query(`INSERT INTO my_database (name, email, age) VALUES ()`);
-  console.log(addDBData.rows)
-  return await addDBData.rows;
-}
 // хеширование пароля
 const hashPassword = async (password) => {
   const saltRounds = 10;
@@ -102,7 +98,7 @@ app.get('/data', async (req, res) => {
     res.status(404).json({ error: 'Database is empty!' });
   }
   const names = await data();
-  const listItems = names.map(item => `<li>${item.username}</li>`).join('');
+  const listItems = names.map(item => `<li>${item.username} - ${item.password}</li>`).join('');
   const htmlResponse = `
         <html>
       <head>
@@ -151,6 +147,16 @@ app.post('/login', authMiddleware, async (req, res) => {
   return res.status(200).json({ message: 'Вход успешен', user: userData.rows[0] });
 
 });
+
+app.delete('/logout', authMiddleware, async (req, res) => {
+  const { username, password } = req.body;
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Токен отсутствует' });
+  }
+
+})
+
 // Обновление токена пользователя(работает по вызову)
 app.post('/refresh', async (req, res) => {
   const { refreshToken } = JSON.parse(body);

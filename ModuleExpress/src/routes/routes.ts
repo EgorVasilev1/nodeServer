@@ -29,7 +29,7 @@ export class Routes {
   private setupRoutes() { 
     // Роут аутентификации
     this.router.post('/auth', (req, res) => this.authController.registerUser(req, res));
-    this.router.post('/login', this.middleware.authMiddleware, (req, res) => this.authController.loginUser(req, res));
+    this.router.post('/login', this.middleware.authMiddleware.bind(this.middleware), (req, res) => this.authController.loginUser(req, res));
     this.router.post('/refresh', (req, res) => this.authController.refreshTokens(req, res));
     this.router.patch('/password', this.middleware.authMiddleware, (req, res) => this.usersController.updatePassword(req, res));
     this.router.patch('/username', this.middleware.authMiddleware, (req, res) => this.usersController.updateUsername(req, res));

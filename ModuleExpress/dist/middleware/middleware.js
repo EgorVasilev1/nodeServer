@@ -18,17 +18,28 @@ class Middleware {
         if (!authHeader) {
             return res.status(401).json({ error: 'Токен отсутствует' });
         }
-        const token = authHeader.split(' ')[1];
+        const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+        console.log(`Токен перед проверкой: "${token}"`);
         try {
+            console.log(`Проверяю токен в Redis...`);
             const cachedUser = await this.redis.get(token);
+            console.log(`Найдено в Redis:`, cachedUser);
             if (!cachedUser) {
                 return res.status(401).json({ error: 'Пользователь не найден' });
             }
+            console.log(`SECRET_KEY загружен: ${!!SECRET_KEY}`);
             const decoded = jsonwebtoken_1.default.verify(token, SECRET_KEY);
-            req.user = JSON.parse(cachedUser);
+            try {
+                req.user = JSON.parse(cachedUser);
+            }
+            catch (error) {
+                console.error("Ошибка парсинга JSON из Redis:", cachedUser);
+                return res.status(500).json({ error: "Ошибка сервера" });
+            }
             next();
         }
         catch (err) {
+            console.error("Ошибка проверки токена:", err);
             return res.status(401).json({ error: 'Недействительный токен' });
         }
     }

@@ -1,15 +1,27 @@
 import { Response } from 'express';
 
 export class Success {
-    public message: string;
-    public statusCode: number;
+    constructor(
+        private message: string, 
+        private statusCode: number = 200
+    ) {}
 
-    constructor(message: string, statusCode: number = 200) {
-        this.message = message;
-        this.statusCode = statusCode;
+    send(res: Response, data?: Record<string, any> | any[] | string) { // Чётко указываем тип данных
+        const response: { message: string; data?: unknown } = { message: this.message };
+        
+        if (data) {
+            // Преобразуем данные, если они пришли из ORM
+            response.data = this.sanitizeData(data);
+        }
+
+        return res.status(this.statusCode).json(response);
     }
 
-    send(res: Response, data: any) {
-        return res.status(this.statusCode).json({ message: this.message, data });
+    private sanitizeData(data: any): any {
+        // Если данные из Mongoose, преобразуем в чистый объект
+        if (data && typeof data === 'object' && 'lean' in data) {
+            return data.lean();
+        }
+        return data;
     }
 }

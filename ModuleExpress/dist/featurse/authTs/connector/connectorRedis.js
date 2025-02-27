@@ -7,7 +7,7 @@ class ConnectorRedisAuth {
     constructor(redis) {
         this.redis = new redis_js_1.RedisClient();
     }
-    async set(key, value, expire = 0) {
+    async set(key, value, expire) {
         await this.redis.set(key, value, expire);
     }
     async get(key) {

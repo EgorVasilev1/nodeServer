@@ -29,7 +29,7 @@ services:
 
   redis:
     image: redis:7.4
-    container_name: redis_cache
+    container_name: redisclient
     restart: unless-stopped
     ports:
       - "6379:6379"

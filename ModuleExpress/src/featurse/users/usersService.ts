@@ -33,7 +33,7 @@ export class UsersService {
         try{
             return await this.userModel.getUserByUsername(username);
         } catch (error) {
-            new Errors("Ошибка при получении пользователя", 400);
+            return new Errors("Ошибка при получении пользователя", 400);
         }
     }
 
@@ -41,7 +41,7 @@ export class UsersService {
         try {
             return await this.userModel.updateUsername(id, username);
         } catch (error) {
-            new Errors("Ошибка при обновлении пользователя", 400);
+            return new Errors("Ошибка при обновлении пользователя", 400);
         }
     }
 
@@ -49,7 +49,7 @@ export class UsersService {
         try {
             return await this.userModel.updatePassword(id, password);
         } catch(error) {
-            new Errors("Ошибка при обновлении пароля пользователя", 400);
+            return new Errors("Ошибка при обновлении пароля пользователя", 400);
         }
     }
 
@@ -58,7 +58,7 @@ export class UsersService {
             this.connectorRedis.del(accessToken, refreshToken);
             return await this.userModel.deleteUser(id);
         } catch (error) {
-            new Errors("Ошибка при удалении пользователя", 400);
+            return new Errors("Ошибка при удалении пользователя", 400);
         }
     }
 }

@@ -7,7 +7,7 @@ export class ConnectorRedisAuth {
         this.redis = new RedisClient();
     }
 
-    async set(key: string, value: string, expire: number = 0) {
+    async set(key: string, value: string, expire: number) {
         await this.redis.set(key, value, expire);
     }
 

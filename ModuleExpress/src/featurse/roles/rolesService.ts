@@ -16,7 +16,7 @@ export class RolesService {
     }
 
     async addRoles(name: string) {
-        await this.rolesModel.addRoles(name);
+        return await this.rolesModel.addRoles(name);
     }
 
     async assignUserRoles(userId: string, role: string){
@@ -24,7 +24,7 @@ export class RolesService {
         if (roles.includes(role)) {
             throw new Error("Роль уже назначена пользователю");
         }
-        await this.rolesModel.assingRolesUser(userId, role);
+        return await this.rolesModel.assingRolesUser(userId, role);
     }
 
     async removeRolesUser(userId: string, role: string){
@@ -32,7 +32,7 @@ export class RolesService {
         if (!roles.includes(role)) {
             throw new Error("Роль не назначена пользователю");
         }
-        await this.rolesModel.removeRolesUser(userId, role);
+        return await this.rolesModel.removeRolesUser(userId, role);
     }
 
     async deleteRoles(role: string) {

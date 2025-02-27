@@ -8,7 +8,7 @@ class UsersModel {
     }
     async getUsers() {
         try {
-            return await this.db.query('SELECT * FROM users');
+            return await this.db.query(`SELECT * FROM users`);
         }
         catch (err) {
             console.log(err);
@@ -17,7 +17,7 @@ class UsersModel {
     }
     async getUserById(id) {
         try {
-            return await this.db.query('SELECT * FROM users WHERE id = $1', [id]);
+            return await this.db.query(`SELECT * FROM users WHERE id = $1`, [id]);
         }
         catch (err) {
             console.log(err);
@@ -26,7 +26,7 @@ class UsersModel {
     }
     async getUserByUsername(username) {
         try {
-            return await this.db.query('SELECT * FROM users WHERE username = $1', [username]);
+            return await this.db.query(`SELECT * FROM users WHERE username = $1`, [username]);
         }
         catch (err) {
             console.log(err);
@@ -35,7 +35,7 @@ class UsersModel {
     }
     async updatePassword(id, password) {
         try {
-            return await this.db.query('UPDATE users SET password = $1 WHERE id = $2', [password, id]);
+            return await this.db.query(`UPDATE users SET password = $1 WHERE id = $2`, [password, id]);
         }
         catch (err) {
             console.log(err);
@@ -44,7 +44,7 @@ class UsersModel {
     }
     async updateUsername(id, username) {
         try {
-            return await this.db.query('UPDATE users SET username = $1 WHERE id = $2', [username, id]);
+            return await this.db.query(`UPDATE users SET username = $1 WHERE id = $2`, [username, id]);
         }
         catch (err) {
             console.log(err);
@@ -53,7 +53,7 @@ class UsersModel {
     }
     async deleteUser(id) {
         try {
-            return await this.db.query('DELETE FROM users WHERE id = $1', [id]);
+            return await this.db.query(`DELETE FROM users WHERE id = $1`, [id]);
         }
         catch (err) {
             console.log(err);

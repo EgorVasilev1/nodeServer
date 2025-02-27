@@ -13,21 +13,21 @@ class RolesService {
         return await this.rolesModel.getUserRoles(userId);
     }
     async addRoles(name) {
-        await this.rolesModel.addRoles(name);
+        return await this.rolesModel.addRoles(name);
     }
     async assignUserRoles(userId, role) {
         const roles = await this.rolesModel.getUserRoles(userId);
         if (roles.includes(role)) {
             throw new Error("Роль уже назначена пользователю");
         }
-        await this.rolesModel.assingRolesUser(userId, role);
+        return await this.rolesModel.assingRolesUser(userId, role);
     }
     async removeRolesUser(userId, role) {
         const roles = await this.rolesModel.getUserRoles(userId);
         if (!roles.includes(role)) {
             throw new Error("Роль не назначена пользователю");
         }
-        await this.rolesModel.removeRolesUser(userId, role);
+        return await this.rolesModel.removeRolesUser(userId, role);
     }
     async deleteRoles(role) {
         const deleted = await this.rolesModel.deleteRoles(role);

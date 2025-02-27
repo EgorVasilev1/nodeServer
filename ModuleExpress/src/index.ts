@@ -16,9 +16,13 @@ import { ConnectorDBRoles } from "./featurse/roles/connector/connectDB";
 import { ConnectorDBUsers } from "./featurse/users/connector/connectDB";
 import { ConnectorRedisUsers } from "./featurse/users/connector/connectorRedis";
 import { ConnectorRedisAuth } from "./featurse/authTs/connector/connectorRedis";
+import { Success } from "./config/success";
+import { Errors } from "./config/errors";
 
 
 const dbPool = new DatabasePool();
+const success = new Success("Операция выполнена успешно");
+const errors = new Errors("Ошибка выполнения операции", 400);
 const connectDBRoles = new ConnectorDBRoles(dbPool);
 const connectorDBUsers = new ConnectorDBUsers(dbPool);
 const usersModel = new UsersModel(connectorDBUsers);
@@ -30,9 +34,9 @@ const authModel = new AuthModel(dbPool);
 const authService = new AuthService(authModel, connectorRedisAuth);
 const rolesService = new RolesService(rolesModel);
 const usersService = new UsersService(usersModel, connectorRedisUsers);
-const authController = new AuthController(authService);
-const rolesController = new RolesController(rolesService);
-const usersController = new UsersController(usersService);
+const authController = new AuthController(authService, success, errors);
+const rolesController = new RolesController(rolesService, success, errors);
+const usersController = new UsersController(usersService, success, errors);
 const middleware = new Middleware(redisClient);
 const routes = new Routes(authController, rolesController, usersController, middleware);
 const app = new App(routes, dbPool, redisClient);

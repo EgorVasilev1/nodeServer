@@ -1,36 +1,41 @@
-import { createClient, RedisClientType } from "redis";
+import Redis from "ioredis";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 export class RedisClient {
-    private client: RedisClientType;
+    private client: Redis;
 
     constructor() {
-        this.client = createClient({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: Number(process.env.REDIS_PORT)
-            }
-            
+        this.client = new Redis({
+            host: process.env.REDIS_HOST,
+            port: Number(process.env.REDIS_PORT),
         });
 
-        this.client.on("error", (err) => console.error("Ошибка Redis:", err));
+        this.client.on('connect', () => console.log("Redis подключён"));
+        this.client.on('error', (err) => console.error("Ошибка Redis:", err));
     }
 
     async connect() {
-        try {
-            await this.client.connect();
-            console.log("Соединение с Redis установлено");
-        } catch (err) {
-            console.error("Ошибка при подключении к Redis:", err);
+        if (this.client.status !== "ready") {
+            try {
+                // Явное подключение только если статус не 'ready'
+                await this.client.connect();
+                console.log(
+                    `Соединение с Redis установлено(http://${process.env.REDIS_HOST}:${Number(process.env.REDIS_PORT)})`
+                );
+            } catch (err) {
+                console.error("Ошибка при подключении к Redis:", err);
+            }
         }
     }
 
     async set(key: string, value: string, expirationInSeconds?: number) {
         try {
+            console.log("Redis status:", this.client.status);
+            console.log(`Сохраняю в Redis: ${key} → ${value}`);
             if (expirationInSeconds) {
-                await this.client.set(key, value, { EX: expirationInSeconds });
+                await this.client.set(key, value, "EX", expirationInSeconds);
             } else {
                 await this.client.set(key, value);
             }
@@ -42,6 +47,7 @@ export class RedisClient {
 
     async get(key: string) {
         try {
+            console.log(`Запрашиваю из Redis: ${key}`);
             return await this.client.get(key);
         } catch (err) {
             console.error(`Ошибка при получении ключа ${key}:`, err);

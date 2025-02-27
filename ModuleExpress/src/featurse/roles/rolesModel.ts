@@ -9,7 +9,7 @@ export class RolesModel {
 
     public getRoles() {
         try{
-            return this.db.query('SELECT * FROM roles');
+            return this.db.query(`SELECT * FROM roles`);
         } catch(err){
             console.error('Error fetching roles:', err);
             throw err;
@@ -19,7 +19,7 @@ export class RolesModel {
 
     async getUserRoles(userId: string) {
         try{
-            return await this.db.query('SELECT * FROM roles WHERE id = ?', [userId]);
+            return await this.db.query(`SELECT * FROM roles WHERE id = ?`, [userId]);
         }
         catch(err){
             console.error('Error fetching roles:', err);
@@ -30,7 +30,7 @@ export class RolesModel {
 
     async addRoles(role: string) {
         try{
-            return await this.db.query('INSERT INTO roles VALUES (?)', [role]);
+            return await this.db.query(`INSERT INTO roles VALUES (?)`, [role]);
         } catch(err){
             console.error('Error adding role:', err);
             throw err;
@@ -47,7 +47,7 @@ export class RolesModel {
 
     async removeRolesUser(userId: string, roleId: string) {
         try {
-            const userRoles = await this.db.query('SELECT role_id FROM user_roles WHERE user_id = $1', [userId]);
+            const userRoles = await this.db.query(`SELECT role_id FROM user_roles WHERE user_id = $1`, [userId]);
             const userRoleId = userRoles.map((row: { role_id: number }) => row.role_id);
             if (!userRoleId.includes(roleId)) {
                 throw new Error('Пользователь не имеет эту роль');
@@ -55,7 +55,7 @@ export class RolesModel {
             if (userRoleId.length === 1) {
                 throw new Error('Пользователь не может быть без ролей');
             }
-            await this.db.query('DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2', [userId, roleId]);
+            await this.db.query(`DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2`, [userId, roleId]);
     
             console.log(`Роль ${roleId} успешно удалена у пользователя ${userId}`);
         } catch (error) {
@@ -67,7 +67,7 @@ export class RolesModel {
 
     async deleteRoles(role: string) {
         try{
-            return await this.db.query('DELETE FROM roles WHERE role = ?', [role]);
+            return await this.db.query(`DELETE FROM roles WHERE role = ?`, [role]);
         } catch (err){
             console.log('Ошибка удаления ролей:', err);
             throw err;

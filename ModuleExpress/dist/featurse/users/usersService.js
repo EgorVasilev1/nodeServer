@@ -30,7 +30,7 @@ class UsersService {
             return await this.userModel.getUserByUsername(username);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при получении пользователя", 400);
+            return new errors_js_1.Errors("Ошибка при получении пользователя", 400);
         }
     }
     async updateUsername(id, username) {
@@ -38,7 +38,7 @@ class UsersService {
             return await this.userModel.updateUsername(id, username);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при обновлении пользователя", 400);
+            return new errors_js_1.Errors("Ошибка при обновлении пользователя", 400);
         }
     }
     async updatePassword(id, password) {
@@ -46,7 +46,7 @@ class UsersService {
             return await this.userModel.updatePassword(id, password);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при обновлении пароля пользователя", 400);
+            return new errors_js_1.Errors("Ошибка при обновлении пароля пользователя", 400);
         }
     }
     async deleteUser(id, accessToken, refreshToken) {
@@ -55,7 +55,7 @@ class UsersService {
             return await this.userModel.deleteUser(id);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при удалении пользователя", 400);
+            return new errors_js_1.Errors("Ошибка при удалении пользователя", 400);
         }
     }
 }

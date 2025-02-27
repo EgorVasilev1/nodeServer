@@ -30,8 +30,8 @@ class AuthService {
             const hashedPassword = await this.hashPassword(password);
             await this.model.saveUser(username, hashedPassword);
             const { accessToken, refreshToken } = this.generateTokens(username);
-            await this.redis.set(`access:${accessToken}`, username, 3600);
-            await this.redis.set(`refresh:${refreshToken}`, username, 604800);
+            await this.redis.set(accessToken, JSON.stringify({ username }), 3600);
+            await this.redis.set(refreshToken, JSON.stringify({ username }), 604800);
             return { accessToken, refreshToken, username, hashedPassword };
         }
         catch (error) {

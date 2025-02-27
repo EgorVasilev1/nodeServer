@@ -1,20 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesController = void 0;
-const errors_js_1 = require("../../config/errors.js");
-const success_js_1 = require("../../config/success.js");
 class RolesController {
     service;
-    constructor(service) {
+    success;
+    errors;
+    constructor(service, success, errors) {
         this.service = service;
+        this.success = success;
+        this.errors = errors;
     }
     async getRoles(req, res) {
         try {
             const roles = await this.service.getRoles();
-            return new success_js_1.Success('Роли успешно получены').send(res, roles);
+            return this.success.send(res, roles);
         }
         catch (error) {
-            return new errors_js_1.Errors("Ошибка получения ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка получения ролей', 500);
         }
     }
     async getUserRoles(req, res) {
@@ -22,28 +24,28 @@ class RolesController {
             const { id } = req.params;
             const userRoles = await this.service.getUserRoles(id);
             if (!id) {
-                return new errors_js_1.Errors("Не указан id пользователя", 400).send(res);
+                return this.errors.send(res, "Не указан id пользователя", 400);
             }
             if (!userRoles) {
-                return new errors_js_1.Errors("Роли пользовтеля не найдены", 404).send(res);
+                return this.errors.send(res, "Роли пользовтеля не найдены", 404);
             }
-            return new success_js_1.Success('Роли пользователя успешно получены').send(res, userRoles);
+            return this.success.send(res, userRoles);
         }
         catch (error) {
-            return new errors_js_1.Errors("Ошибка получения ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка получения ролей', 500);
         }
     }
     async addRoles(req, res) {
         try {
             const roles = req.body;
             if (!roles) {
-                new errors_js_1.Errors("Не указаны роли", 400).send(res);
+                return this.errors.send(res, "Не указаны роли", 400);
             }
             const add = await this.service.addRoles(roles);
-            new success_js_1.Success('Роли успешно добавлены').send(res, add);
+            return this.success.send(res, `Роли успешно добавлены ${add}`);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при добавлении ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка при добавлении ролей', 500);
         }
     }
     async assignUserRoles(req, res) {
@@ -51,16 +53,17 @@ class RolesController {
             const roles = req.body;
             const id = req.params.id;
             if (!id) {
-                new errors_js_1.Errors("Не указан id пользователя", 400).send(res);
+                return this.errors.send(res, "Не указан id пользователя", 400);
             }
             if (!roles) {
-                new errors_js_1.Errors("Не указаны роли", 400).send(res);
+                return this.errors.send(res, "Не указан роли пользователя", 400);
+                ;
             }
             const userRoles = await this.service.assignUserRoles(id, roles);
-            new success_js_1.Success('Роли пользователя успешно назначены').send(res, userRoles);
+            return this.success.send(res, `Роли(${userRoles}) пользователя успешно назначены`);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при назначении ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка при назначении ролей', 500);
         }
     }
     async removeRolesUser(req, res) {
@@ -68,29 +71,29 @@ class RolesController {
             const id = req.params.id;
             const roles = req.body;
             if (!id) {
-                new errors_js_1.Errors("Не указан id пользователя", 400).send(res);
+                return this.errors.send(res, "Не указан id пользователя", 400);
             }
             if (!roles) {
-                new errors_js_1.Errors("Не указаны роли", 400).send(res);
+                return this.errors.send(res, "Не указаны роли", 400);
             }
             const removeRolesUser = await this.service.removeRolesUser(id, roles);
-            new success_js_1.Success('Роли пользователя успешно удалены').send(res, removeRolesUser);
+            return this.success.send(res, `Роли(${removeRolesUser}) пользователя успешно удалены`);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при удалении ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка при удалении ролей', 500);
         }
     }
     async deleteRoles(req, res) {
         try {
             const roles = req.body;
             if (!roles) {
-                new errors_js_1.Errors("Не указаны роли", 400).send(res);
+                return this.errors.send(res, "Не указаны роли", 400);
             }
             const deletedRoles = await this.service.deleteRoles(roles);
-            new success_js_1.Success('Роли успешно удалены').send(res, deletedRoles);
+            return this.success.send(res, `Роли(${deletedRoles}) успешно удалены`);
         }
         catch (error) {
-            new errors_js_1.Errors("Ошибка при удалении ролей", 400).send(res);
+            return this.errors.send(res, 'Ошибка при удалении ролей', 500);
         }
     }
 }

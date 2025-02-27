@@ -7,19 +7,23 @@ import { Errors } from '../../config/errors.js';
 
 export class AuthController {
     private service: AuthService;
+    private success: Success;
+    private errors: Errors;
 
-    constructor(service: AuthService) {
+    constructor(service: AuthService, success: Success, errors: Errors){
         this.service = service;
+        this.success = success;
+        this.errors = errors;
     }
 
     async registerUser(req: Request, res: Response) {
         try {
             const { username, password } = req.body;
             const registerUser = await this.service.register(username, password);
-            new Success(`${registerUser}`, 200);
+            return this.success.send(res,{registerUser});
         } catch (error) {
             console.error('Registration error:', error);
-            new Errors('Registration error', 500);
+            return this.errors.send(res,'Registration error', 500);
         }
     }
 
@@ -27,10 +31,9 @@ export class AuthController {
         try {
             const { username, password } = req.body;
             const logUser = await this.service.login(username, password);
-            new Success(logUser, 200);
+        return this.success.send(res, {logUser});
         } catch (error) {
-            new Errors(
-                'Login error', 500);
+            return this.errors.send(res,'Login error', 500);
         }
     }
 
@@ -38,12 +41,12 @@ export class AuthController {
         try {
             const { refreshToken } = req.body;
             if (!refreshToken) {
-                return new Errors("Refresh token not found", 400);
+                return this.errors.send(res,'Refresh token not found', 400);
             }
             const { accessToken, refreshToken :newRefreshToken } = await this.service.refresh(refreshToken);
-            new Success(`accessToken: ${accessToken} \nrefreshToken: ${newRefreshToken}`, 200);
+            return this.success.send(res,`accessToken: ${accessToken} \nrefreshToken: ${newRefreshToken}`);
         } catch (error) {
-            new Errors('Refresh token error', 500);
+            return this.errors.send(res, 'Ошибка отправки refreshToken', 500);
         }
     }
 

@@ -4,33 +4,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RedisClient = void 0;
-const redis_1 = require("redis");
+const ioredis_1 = __importDefault(require("ioredis"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 class RedisClient {
     client;
     constructor() {
-        this.client = (0, redis_1.createClient)({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: Number(process.env.REDIS_PORT)
-            }
+        this.client = new ioredis_1.default({
+            host: process.env.REDIS_HOST,
+            port: Number(process.env.REDIS_PORT),
         });
-        this.client.on("error", (err) => console.error("Ошибка Redis:", err));
+        this.client.on('connect', () => console.log("Redis подключён"));
+        this.client.on('error', (err) => console.error("Ошибка Redis:", err));
     }
     async connect() {
-        try {
-            await this.client.connect();
-            console.log("Соединение с Redis установлено");
-        }
-        catch (err) {
-            console.error("Ошибка при подключении к Redis:", err);
+        if (this.client.status !== "ready") {
+            try {
+                // Явное подключение только если статус не 'ready'
+                await this.client.connect();
+                console.log(`Соединение с Redis установлено(http://${process.env.REDIS_HOST}:${Number(process.env.REDIS_PORT)})`);
+            }
+            catch (err) {
+                console.error("Ошибка при подключении к Redis:", err);
+            }
         }
     }
     async set(key, value, expirationInSeconds) {
         try {
+            console.log("Redis status:", this.client.status);
+            console.log(`Сохраняю в Redis: ${key} → ${value}`);
             if (expirationInSeconds) {
-                await this.client.set(key, value, { EX: expirationInSeconds });
+                await this.client.set(key, value, "EX", expirationInSeconds);
             }
             else {
                 await this.client.set(key, value);
@@ -43,6 +47,7 @@ class RedisClient {
     }
     async get(key) {
         try {
+            console.log(`Запрашиваю из Redis: ${key}`);
             return await this.client.get(key);
         }
         catch (err) {

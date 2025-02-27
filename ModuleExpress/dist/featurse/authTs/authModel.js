@@ -14,11 +14,21 @@ class AuthModel {
     }
     // Получение пользователя по username
     async getUsername(username) {
-        return await this.pool.query(`SELECT * FROM users WHERE username = $1`, [username]);
+        try {
+            return await this.pool.query(`SELECT * FROM users WHERE username = $1`, [username]);
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
     // Добавление пользователя
     async saveUser(username, password) {
-        return await this.pool.query(`INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *`, [username, password]);
+        try {
+            return await this.pool.query(`INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *`, [username, password]);
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }
 exports.AuthModel = AuthModel;

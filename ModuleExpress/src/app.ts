@@ -148,7 +148,7 @@ export class App {
       })
       .then(() => {
         this.redisClient.connect();
-        this.logger.info("Redis подключён");
+        this.logger.info("Redis подключён");      
       })
       .catch((err) => {
         this.logger.error("Ошибка подключения к базе данных:", err);

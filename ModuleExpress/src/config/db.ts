@@ -22,8 +22,12 @@ export class DatabasePool {
   }
 
   public async query(queryString: string, params?: any[]) {
-    const result = await this.pool.query(queryString, params);
-    return result.rows;
+    try {
+      const result = await this.pool.query(queryString, params);
+      return result.rows;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   public async connect() {
@@ -31,44 +35,48 @@ export class DatabasePool {
   }
 
   public async initializeTables() {
-    const createUsersSequence = `CREATE SEQUENCE IF NOT EXISTS users_id_seq;`;
-    const createRolesSequence = `CREATE SEQUENCE IF NOT EXISTS roles_id_seq;`;
-
-    const usersTable = `
-      CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY DEFAULT nextval('users_id_seq'),
-          username VARCHAR(100) UNIQUE NOT NULL,
-          password VARCHAR(255) NOT NULL
-      );
+    const checkTables = `
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public';
     `;
-
-    const rolesTable = `
-      CREATE TABLE IF NOT EXISTS roles (
-          id INTEGER PRIMARY KEY DEFAULT nextval('roles_id_seq'),
-          name VARCHAR(50) UNIQUE NOT NULL
-      );
-    `;
-
-    const userRolesTable = `
-      CREATE TABLE IF NOT EXISTS user_roles (
-          user_id INT REFERENCES users(id) ON DELETE CASCADE,
-          role_id INT REFERENCES roles(id) ON DELETE CASCADE,
-          PRIMARY KEY (user_id, role_id)
-      );
-    `;
-
+  
     try {
-      await this.pool.query(createUsersSequence);
-      await this.pool.query(createRolesSequence);
-      await this.pool.query(usersTable);
-      await this.pool.query(rolesTable);
-      await this.pool.query(userRolesTable);
-      console.log('Таблицы успешно созданы или уже существуют.');
+      await this.pool.query(`CREATE SEQUENCE IF NOT EXISTS users_id_seq;`);
+      await this.pool.query(`CREATE SEQUENCE IF NOT EXISTS roles_id_seq;`);
+  
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY DEFAULT nextval('users_id_seq'),
+            username VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL
+        );
+      `);
+  
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS roles (
+            id INTEGER PRIMARY KEY DEFAULT nextval('roles_id_seq'),
+            name VARCHAR(50) UNIQUE NOT NULL
+        );
+      `);
+  
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS user_roles (
+            user_id INT REFERENCES users(id) ON DELETE CASCADE,
+            role_id INT REFERENCES roles(id) ON DELETE CASCADE,
+            PRIMARY KEY (user_id, role_id)
+        );
+      `);
+  
+      const tables = await this.pool.query(checkTables);
+      console.log('Существующие таблицы:', tables.rows);
+  
     } catch (error) {
       console.error('Ошибка при создании таблиц:', error);
       throw error; 
     }
-}
+  }
+  
 
   public async dropTables() {
     await this.pool.query('DROP TABLE IF EXISTS users CASCADE');

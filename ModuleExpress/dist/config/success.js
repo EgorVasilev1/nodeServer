@@ -9,7 +9,19 @@ class Success {
         this.statusCode = statusCode;
     }
     send(res, data) {
-        return res.status(this.statusCode).json({ message: this.message, data });
+        const response = { message: this.message };
+        if (data) {
+            // Преобразуем данные, если они пришли из ORM
+            response.data = this.sanitizeData(data);
+        }
+        return res.status(this.statusCode).json(response);
+    }
+    sanitizeData(data) {
+        // Если данные из Mongoose, преобразуем в чистый объект
+        if (data && typeof data === 'object' && 'lean' in data) {
+            return data.lean();
+        }
+        return data;
     }
 }
 exports.Success = Success;

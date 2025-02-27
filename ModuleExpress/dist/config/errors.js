@@ -9,7 +9,7 @@ class Errors extends Error {
         this.name = this.constructor.name;
         Error.captureStackTrace(this, this.constructor);
     }
-    send(res) {
+    send(res, message, statusCode) {
         return res.status(this.statusCode).json({
             error: this.message,
         });
