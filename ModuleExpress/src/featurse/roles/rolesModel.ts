@@ -24,7 +24,6 @@ export class RolesModel {
         catch(err){
             console.error('Error fetching roles:', err);
             throw err;
-    
         }
     }
 

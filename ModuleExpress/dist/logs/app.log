@@ -506,3 +506,7 @@
 {"level":"info","message":"\u001b[0mGET /api/users/username/user \u001b[32m200\u001b[0m 44.485 ms - 74\u001b[0m","timestamp":"2025-02-27T17:37:49.106Z"}
 {"body":{},"headers":{"accept":"*/*","accept-encoding":"gzip, deflate, br","cache-control":"no-cache","connection":"keep-alive","host":"127.0.0.1:8083","postman-token":"94aff122-7d52-408b-9fb7-356f38cc1b82","traceparent":"00-a7d456a16de2ee737044597476f04ad6-04ac9210f3c1dc76-01","user-agent":"PostmanRuntime/7.39.1"},"level":"info","message":"HTTP Request","method":"GET","timestamp":"2025-02-27T17:37:52.288Z","url":"/api/users/username/use"}
 {"level":"info","message":"\u001b[0mGET /api/users/username/use \u001b[32m200\u001b[0m 46.114 ms - 74\u001b[0m","timestamp":"2025-02-27T17:37:52.337Z"}
+{"level":"info","message":"Подключение к базе данных установлено","timestamp":"2025-02-27T18:18:24.115Z"}
+{"level":"info","message":"База данных успешно инициализирована","timestamp":"2025-02-27T18:18:24.119Z"}
+{"level":"info","message":"Redis подключён","timestamp":"2025-02-27T18:18:24.119Z"}
+{"level":"info","message":"Сервер запущен на http://localhost:8083","timestamp":"2025-02-27T18:18:24.120Z"}
