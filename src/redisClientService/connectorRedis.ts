@@ -1,6 +1,6 @@
-import { RedisClient } from "../../../config/redis.js";
+import { RedisClient } from "../config/redis.js";
 
-export class ConnectorRedisAuth {
+export class ConnectorRedis {
     private redis: RedisClient;
 
     constructor(redis: RedisClient) {

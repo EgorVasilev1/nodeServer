@@ -1,6 +1,6 @@
-import { DatabasePool } from "../../../config/db.js";
+import { DatabasePool } from "../config/db.js";
 
-export class ConnectorDBUsers {
+export class ConnectorDB {
     private db: DatabasePool;
 
     constructor(db: DatabasePool) {

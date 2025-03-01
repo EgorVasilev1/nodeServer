@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { InternalServerError } from './500InternalServerError';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ export class DatabasePool {
       return result.rows;
     } catch (error) {
       console.log(error);
+      throw new InternalServerError();
     }
   }
 
@@ -73,7 +75,7 @@ export class DatabasePool {
   
     } catch (error) {
       console.error('Ошибка при создании таблиц:', error);
-      throw error; 
+      throw new InternalServerError(`Ошибка при создании таблиц:, ${error}`); 
     }
   }
   

@@ -9,10 +9,12 @@ import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import { RedisClient } from "./config/redis.js";
-import { Routes } from "./routes/routes.js";
 import { DatabasePool } from "./config/db.js";
-import { Errors } from "./config/errors.js";
-import { Success } from "./config/success.js";
+import { authRoutes } from "./feature/authTs/index.js";
+import { userManagementRoutes } from "./feature/userManagement/index.js";
+import { usersRoutes } from "./feature/users/index.js";
+import { rolesRoutes } from "./feature/roles/index.js";
+import { InternalServerError } from "./config/500InternalServerError.js";
 
 dotenv.config();
 
@@ -21,15 +23,13 @@ export class App {
   private logger!: winston.Logger;
   private LOG_DIR: string;
   private PORT: string;
-  private routes: Routes;
   private dbPool: DatabasePool;
   private redisClient: RedisClient;
 
-  constructor(routes: Routes, dbPool: DatabasePool, redisClient: RedisClient) {
+  constructor( dbPool: DatabasePool, redisClient: RedisClient) {
     this.app = express();
     this.PORT = process.env.PORT || '8083';
     this.LOG_DIR = path.join(__dirname, "logs");
-    this.routes = routes;
     this.dbPool = dbPool;
     this.redisClient = redisClient;
 
@@ -38,6 +38,8 @@ export class App {
     this.initRoutes();
     this.initErrorHandling();
   }
+
+  
 
   private initCors() {
     const corsOptions = {
@@ -106,11 +108,14 @@ export class App {
   }
 
   private initRoutes() {
-    this.app.use('/api', this.routes.getRouter());
+    this.app.use('/auth', authRoutes);
+    this.app.use('/roles', rolesRoutes);
+    this.app.use('/user-management', userManagementRoutes);
+    this.app.use('/users', usersRoutes);
     this.app.get("/metrics", async (req: Request, res: Response) => {
       res.set("Content-Type", promClient.register.contentType);
       res.end(await promClient.register.metrics());
-      new Success(await promClient.register.metrics(), 200);
+      res.status(200).json(await promClient.register.metrics());
     });
 
     this.app.get("/endpoints", (req: Request, res: Response) => {
@@ -127,7 +132,7 @@ export class App {
         method: req.method,
         url: req.url,
       });
-      new Errors(err.message, 500)
+      new InternalServerError()
     });    
   }
 

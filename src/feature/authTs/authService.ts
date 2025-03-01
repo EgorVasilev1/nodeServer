@@ -1,8 +1,11 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { AuthModel } from "./authModel.js";
-import { ConnectorRedisAuth } from './connector/connectorRedis';
+import { UsersModel } from "../users/usersModel";
+import { ConnectorRedis } from '../../redisClientService/connectorRedis.js';
+import { NotFoundError } from "../../config/404NotFoundError";
+import { InternalServerError } from "../../config/500InternalServerError";
+import { UnauthorizedError } from "../../config/401UnauthorizedError";
 dotenv.config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -10,10 +13,10 @@ const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY;
 
 
 export class AuthService{
-    private model: AuthModel;
-    private redis: ConnectorRedisAuth;
+    private model: UsersModel;
+    private redis: ConnectorRedis;
 
-    constructor(model: AuthModel, redis: ConnectorRedisAuth) {
+    constructor(model: UsersModel, redis: ConnectorRedis) {
         this.model = model;
         this.redis = redis
     }
@@ -30,29 +33,27 @@ export class AuthService{
         const hashedPassword = await this.hashPassword(password);
         await this.model.saveUser(username, hashedPassword);
         const { accessToken, refreshToken } = this.generateTokens(username);
-        await this.redis.set(accessToken, JSON.stringify({ username }), 3600);
-        await this.redis.set(refreshToken, JSON.stringify({ username }), 604800 );
+        await this.redis.set(username, JSON.stringify({ accessToken, refreshToken }), 3600);
         return { accessToken, refreshToken, username, hashedPassword };
     } catch (error) {
-        console.error('Registration error:', error);
-        throw { error: "Ошибка регистрации", details: error };
+        throw new InternalServerError(`Ошибка регистрации \n${error}`);
     }
     }
 
     // Вход пользователя
     async login(username: string, password: string) {
     try {
-        const user = await this.model.getUsername(username);
+        const user = await this.model.getUserByUsername(username);
         if (!user) {
-            throw { error: "Пользователь не найден", code: 404 };
+            throw new NotFoundError("Пользователь не найден");
         }
         const isPasswordCorrect = await this.checkPassword(password, user.password);
         if (!isPasswordCorrect) {
-            throw { error: "Неверный пароль", code: 401 };
+            throw new UnauthorizedError("Неверный пароль");
         }
         return user;
     } catch (error) {
-        throw { error: "Ошибка входа", details: error };
+        throw new InternalServerError(`Ошибка входа \n${error}`);
         }
     }
     
@@ -60,15 +61,14 @@ export class AuthService{
     async refresh(refreshToken: string){
     try {
         if (!refreshToken) {
-        throw new Error("Refresh token отсутствует");
+        throw new NotFoundError("Refresh token отсутствует");
         }
         const decoding = jwt.verify(refreshToken, REFRESH_SECRET_KEY) as JwtPayload;
         const username = decoding.username;
 
         return this.generateTokens(username);
     } catch (error) {
-        console.error("Ошибка в refresh():", error); 
-        throw new Error( "Ошибка обновления токена");
+        throw new InternalServerError( `Ошибка обновления токена \n${error}`);
         }
     };
 

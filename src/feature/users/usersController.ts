@@ -1,71 +1,65 @@
 import { Request, Response } from 'express';
 import { UsersService } from './usersService.js';
-import { Success } from '../../config/success.js';
-import { Errors } from '../../config/errors.js';
+import { BadRequestError } from '../../config/400BadRequestError.js';
 
 export class UsersController {
     private usersService: UsersService;
-    private success: Success;
-    private errors: Errors;
 
-    constructor(usersService: UsersService, success: Success, errors: Errors) {
+    constructor(usersService: UsersService) {
         this.usersService = usersService;
-        this.success = success;
-        this.errors = errors;
     }
 
     async getUsers(req: Request, res: Response) {
         try {
             const users = await this.usersService.getUsers();
-            return this.success.send(res, {users});
+            res.status(200).json(users);
         } catch (error) {
-            return this.errors.send(res, `error: ${error}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 
     async getUserById(req: Request, res: Response) {
         try{
             const user = await this.usersService.getUserById(req.params.id);
-            return this.success.send(res, {user});
-
+            res.status(200).json(user);
         } catch (error) {
-            return this.errors.send(res, `error: ${error}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 
     async getUserByUsername(req: Request, res: Response) {
         try {
             const user = await this.usersService.getUserByUsername(req.params.username);
-            return this.success.send(res, {user});
+            res.status(200).json(user);
         } catch (error) {
-            return this.errors.send(res, `error: ${{error}}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 
     async updateUsername(req: Request, res: Response) {
         try{
             const user = await this.usersService.updateUsername(req.params.id, req.body.username);
-            return this.success.send(res, `Имя пользователя: ${req.body.username} изменено на ${{user}}`);
+            res.status(200).json(`Имя пользователя: ${req.body.username} изменено на ${{user}}`);
         } catch (error) {
-            return this.errors.send(res, `error: ${{error}}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 
     async updatePassword(req: Request, res: Response) {
         try{
             const user = await this.usersService.updatePassword(req.params.id, req.body.password);
-            return this.success.send(res, `Пароль пользователя: ${req.body.password} изменен на ${{user}}`);
+            res.status(200).json(`Пароль пользователя: ${req.body.password} изменен на ${{user}}`);
         } catch (error) {
-            return this.errors.send(res, `error: ${{error}}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 
     async deleteUser(req: Request, res: Response) {
         try {
             const user = await this.usersService.deleteUser(req.params.id, req.params.accessToken, req.params.refreshToken);
-            return this.success.send(res, `Пользователь ${{user}} удален`);
+            res.status(200).json(`Пользователь ${{user}} удален`);
         } catch (error) {
-            return this.errors.send(res, `error: ${{error}}`, 400);
+            throw new BadRequestError(`error: ${error}`);
         }
     }
 }

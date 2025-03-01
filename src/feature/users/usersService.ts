@@ -1,14 +1,13 @@
 import { UsersModel } from "./usersModel.js";
-import { Errors } from "../../config/errors.js";
-import { Success } from "../../config/success.js";
-import { ConnectorRedisUsers } from "./connector/connectorRedis";
+import { ConnectorRedis } from "../../redisClientService/connectorRedis.js";
+import { BadRequestError } from "../../config/400BadRequestError.js";
 
 export class UsersService {
     private userModel: UsersModel;
-    private connectorRedis: ConnectorRedisUsers
+    private connectorRedis: ConnectorRedis
     
 
-    constructor(userModel: UsersModel, connectorRedis: ConnectorRedisUsers) {
+    constructor(userModel: UsersModel, connectorRedis: ConnectorRedis) {
         this.userModel = userModel;
         this.connectorRedis = connectorRedis;
     }
@@ -17,7 +16,7 @@ export class UsersService {
         try {
             return await this.userModel.getUsers();
         } catch (error) {
-            return new Errors("Ошибка при получении списка пользователей", 400);
+            throw new BadRequestError("Ошибка при получении пользователей");
         }
     }
 
@@ -25,7 +24,7 @@ export class UsersService {
         try{
             return await this.userModel.getUserById(id);
         } catch (error) {
-            new Errors("Ошибка при получении пользователя", 400);
+            throw new BadRequestError("Ошибка при получении пользователя");
         }
     }
 
@@ -33,7 +32,7 @@ export class UsersService {
         try{
             return await this.userModel.getUserByUsername(username);
         } catch (error) {
-            return new Errors("Ошибка при получении пользователя", 400);
+            throw new BadRequestError("Ошибка при получении пользователя");
         }
     }
 
@@ -41,7 +40,7 @@ export class UsersService {
         try {
             return await this.userModel.updateUsername(id, username);
         } catch (error) {
-            return new Errors("Ошибка при обновлении пользователя", 400);
+            throw new BadRequestError("Ошибка при обновлении пользователя");
         }
     }
 
@@ -49,7 +48,7 @@ export class UsersService {
         try {
             return await this.userModel.updatePassword(id, password);
         } catch(error) {
-            return new Errors("Ошибка при обновлении пароля пользователя", 400);
+            throw new BadRequestError("Ошибка при обновлении пароля пользователя");
         }
     }
 
@@ -58,7 +57,7 @@ export class UsersService {
             this.connectorRedis.del(accessToken, refreshToken);
             return await this.userModel.deleteUser(id);
         } catch (error) {
-            return new Errors("Ошибка при удалении пользователя", 400);
+            throw new BadRequestError("Ошибка при удалении пользователя");
         }
     }
 }
