@@ -4,7 +4,7 @@ import { InternalServerError } from "../../config/500InternalServerError";
 import {ConnectorDB} from "../../databasePoolService/connectDB";
 import { RolesModel } from "../roles/rolesModel";
 
-export class UserManagementModel {
+export class UserRolesModel {
     private db: ConnectorDB;
     private roles: RolesModel;
 

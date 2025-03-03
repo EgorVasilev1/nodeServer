@@ -8,8 +8,8 @@ export class ConnectorDB {
     }
     
     async query(query: string, values: any[] = []) {
-      return await this.db.query(query);
-    }
+      return await this.db.query(query, values);
+  }
     
     async getPool() {
       return await this.db.getPool();

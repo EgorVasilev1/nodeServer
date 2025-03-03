@@ -23,12 +23,14 @@ export class DatabasePool {
   }
 
   public async query(queryString: string, params?: any[]) {
+    console.log('SQL-запрос:', queryString);
+    console.log('Параметры:', params);
     try {
-      const result = await this.pool.query(queryString, params);
-      return result.rows;
+        const result = await this.pool.query(queryString, params);
+        return result;
     } catch (error) {
-      console.log(error);
-      throw new InternalServerError();
+        console.log('Ошибка базы данных:', error);
+        throw new Error('Internal Server Error');
     }
   }
 

@@ -1,12 +1,12 @@
 import { BadRequestError } from "../../config/400BadRequestError";
 import { InternalServerError } from "../../config/500InternalServerError";
-import { UserManagementService } from "./userManagementService";
+import { UserRolesService } from "./userRolesService";
 import { Request, Response } from 'express';
 
-export class UserManagementController {
-    private service: UserManagementService;
+export class UserRolesController {
+    private service: UserRolesService;
 
-    constructor(service: UserManagementService) {
+    constructor(service: UserRolesService) {
         this.service = service;
     }
 

@@ -38,12 +38,12 @@ export class RolesController {
 
     async addRoles(req: Request, res: Response) {
         try {
-            const roles = req.body;
+            const { roles } = req.body;
             if (!roles) {
                 throw new BadRequestError("Не указаны роли");
             }
             const add = await this.service.addRoles(roles);
-            res.status(200).json( {message: `Роли успешно добавлены ${add}`});
+            res.status(200).json( {message: `Роли успешно добавлены`});
         } catch (error) {
             throw new InternalServerError("Ошибка при добавлении ролей");
         }
@@ -51,7 +51,7 @@ export class RolesController {
 
     async deleteRoles(req: Request, res: Response) {
         try {
-            const roles = req.body;
+            const {roles} = req.body;
             if (!roles) {
                 throw new BadRequestError("Не указаны роли");
             }

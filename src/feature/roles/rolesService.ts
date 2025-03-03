@@ -1,3 +1,4 @@
+import { BadRequestError } from '../../config/400BadRequestError.js';
 import { NotFoundError } from '../../config/404NotFoundError.js';
 import { RolesModel } from './rolesModel.js';
 
@@ -17,6 +18,9 @@ export class RolesService {
     }
 
     async addRoles(name: string) {
+        if (!name || name.length === 0) {
+            throw new BadRequestError("Не передано ни одной роли");
+        }
         return await this.rolesModel.addRoles(name);
     }
 

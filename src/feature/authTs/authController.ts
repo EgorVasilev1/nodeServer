@@ -14,6 +14,8 @@ export class AuthController {
     async registerUser(req: Request, res: Response) {
         try {
             const { username, password } = req.body;
+            console.log(req.body);
+            console.log('username:', username, 'password:', password);
             const registerUser = await this.service.register(username, password);
             res.status(201).json(registerUser);
         } catch (error) {
@@ -28,7 +30,8 @@ export class AuthController {
             const logUser = await this.service.login(username, password);
             res.status(200).json(logUser);
         } catch (error) {
-            throw new InternalServerError("Ошибка при авторизации пользователя");
+            console.error('Login error:', error);
+            throw new InternalServerError(`Ошибка при авторизации пользователя ${error} `);
         }
     }
 
@@ -41,6 +44,7 @@ export class AuthController {
             const { accessToken, refreshToken :newRefreshToken } = await this.service.refresh(refreshToken);
             res.status(200).json({ accessToken, refreshToken: newRefreshToken });
         } catch (error) {
+
             throw new InternalServerError("Ошибка при обновлении токенов");
         }
     }

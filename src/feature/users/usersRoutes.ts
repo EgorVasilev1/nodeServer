@@ -1,8 +1,6 @@
-
-
-import { Router } from "express";
-import { UsersController } from "../usersController";
-import { Middleware } from "../../../middleware/middleware";
+ import { Router } from "express";
+import { UsersController } from "./usersController";
+import { Middleware } from "../../middleware/middleware";
 
 export const usersRoutes = (usersController: UsersController, middleware: Middleware) => {
     const router = Router();

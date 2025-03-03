@@ -29,29 +29,32 @@ export class AuthService{
     }
     // Регистрация пользователя(хэширование пароля и создание обычного и refresh токенов)
     async register(username: string, password: string) {
-    try {
-        const hashedPassword = await this.hashPassword(password);
-        await this.model.saveUser(username, hashedPassword);
-        const { accessToken, refreshToken } = this.generateTokens(username);
-        await this.redis.set(username, JSON.stringify({ accessToken, refreshToken }), 3600);
-        return { accessToken, refreshToken, username, hashedPassword };
-    } catch (error) {
-        throw new InternalServerError(`Ошибка регистрации \n${error}`);
-    }
+        try {
+            const hashedPassword = await this.hashPassword(password);
+            await this.model.saveUser(username, hashedPassword);
+            const { accessToken, refreshToken } = this.generateTokens(username);
+            await this.redis.set(`accessToken_${username}`, accessToken, 3600);  
+            await this.redis.set(`refreshToken_${username}`, refreshToken, 604800);  
+            return { accessToken, refreshToken };
+        } catch (error) {
+            throw new InternalServerError(`Ошибка регистрации: ${error}`);
+        }
     }
 
     // Вход пользователя
-    async login(username: string, password: string) {
+    async login(inputUsername: string, inputPassword: string) {
     try {
-        const user = await this.model.getUserByUsername(username);
-        if (!user) {
+        const {username, password} = await this.model.getUserByUsername(inputUsername);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('Найденный пользователь:', username, password);
+        if (!username ) {
             throw new NotFoundError("Пользователь не найден");
         }
-        const isPasswordCorrect = await this.checkPassword(password, user.password);
+        const isPasswordCorrect = await this.checkPassword(inputPassword, password);
         if (!isPasswordCorrect) {
             throw new UnauthorizedError("Неверный пароль");
         }
-        return user;
+        return {username, password};
     } catch (error) {
         throw new InternalServerError(`Ошибка входа \n${error}`);
         }

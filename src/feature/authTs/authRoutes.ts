@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { AuthController } from "../authController";
-import { Middleware } from "../../../middleware/middleware";
+import { AuthController } from "./authController";
+import { Middleware } from "../../middleware/middleware";
 
 export const authRoutes = (authController: AuthController, middleware: Middleware) => {
     const router = Router();

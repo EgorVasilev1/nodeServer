@@ -1,13 +1,13 @@
-import { UserManagementModel } from "./userManagementModel";
+import { UserRolesModel } from "./userRolesModel";
 import { RolesModel } from "../roles/rolesModel";
 import { ConflictError } from "../../config/409ConflictError";
 import { NotFoundError } from "../../config/404NotFoundError";
 
-export class UserManagementService {
-    private model: UserManagementModel;
+export class UserRolesService {
+    private model: UserRolesModel;
     private rolesModel: RolesModel;
 
-    constructor(model: UserManagementModel,rolesModel: RolesModel) {
+    constructor(model: UserRolesModel,rolesModel: RolesModel) {
         this.model = model;
         this.rolesModel = rolesModel
     }

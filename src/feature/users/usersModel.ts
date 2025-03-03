@@ -1,3 +1,5 @@
+import { NotFoundError } from "../../config/404NotFoundError";
+import { InternalServerError } from "../../config/500InternalServerError";
 import { ConnectorDB } from "../../databasePoolService/connectDB"
 
 export class UsersModel {
@@ -18,7 +20,8 @@ export class UsersModel {
 
     async getUserById(id: number) {
         try {
-            return await this.db.query(`SELECT * FROM users WHERE id = $1`, [id]);
+            const result = await this.db.query(`SELECT * FROM users WHERE id = $1`, [id]);
+            return result.rows[0];
         } catch(error) {
             console.log(error);
             throw error;
@@ -26,11 +29,22 @@ export class UsersModel {
     }
 
     async getUserByUsername(username: string) {
-        try{
-            return await this.db.query(`SELECT * FROM users WHERE username = $1`, [username]);
-        } catch(error) {
-            console.log(error);
-            throw error;
+        try {
+            const result = await this.db.query(
+                `SELECT * FROM users WHERE username=$1`, 
+                [username]
+            );
+            if (result.rows.length === 0) {
+                throw new NotFoundError("Пользователь не найден");
+            }
+
+            console.log(result);
+            return result.rows[0];
+            
+
+        } catch (error) {
+            console.error('Ошибка при запросе пользователя:', error);
+            throw new InternalServerError('Ошибка базы данных');
         }
     }
     
@@ -61,12 +75,20 @@ export class UsersModel {
         }
     }
 
-    async saveUser(username: string, password: string) {
-        try{
-            return await this.db.query(`INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *`, [username, password]);
+    async saveUser(username: string, hashedPassword: string) {
+        const sql = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id`;
+        const params = [username, hashedPassword];
+    
+        try {
+            const result = await this.db.query(sql, params);
+            if (result.rowCount > 0) {
+                return result.rows[0]; // Возвращаем id нового пользователя
+            } else {
+                throw new InternalServerError('Не удалось создать пользователя');
+            }
         } catch (error) {
-            console.log(error);
-            throw error;
+            console.error('Ошибка при сохранении пользователя:', error);
+            throw new InternalServerError('Ошибка при сохранении пользователя');
         }
-    }
+    }    
 }

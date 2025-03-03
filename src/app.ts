@@ -10,154 +10,154 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { RedisClient } from "./config/redis.js";
 import { DatabasePool } from "./config/db.js";
-import { authRoutes } from "./feature/authTs/index.js";
-import { userManagementRoutes } from "./feature/userManagement/index.js";
-import { usersRoutes } from "./feature/users/index.js";
-import { rolesRoutes } from "./feature/roles/index.js";
+import { authRoutes } from "./feature/authTs/authRoutes.js";
+import { rolesRoutes } from "./feature/roles/rolesRoutes.js";
+import { userRolesRoutes } from "./feature/userRoles/userRolesRoutes.js";
+import { usersRoutes } from "./feature/users/usersRoutes.js";
 import { InternalServerError } from "./config/500InternalServerError.js";
+import { authController, rolesController, userRolesController, usersController, middleware  } from "./dependencies";
+import { initDependencies } from "./dependencies copy.js";
+import { UserRolesController } from "./feature/userRoles/userRolesController.js";
+import { initAuthDependencies } from "./feature/authTs/index.js";
+import { initRolesDependencies } from "./feature/roles/index.js";
+import { initUsersDependencies } from "./feature/userRoles/index.js";
 
 dotenv.config();
 
-export class App {
-  public app: Application;
-  private logger!: winston.Logger;
-  private LOG_DIR: string;
-  private PORT: string;
-  private dbPool: DatabasePool;
-  private redisClient: RedisClient;
+const PORT = process.env.PORT || '8083';
+const LOG_DIR = path.join(__dirname, "logs");
+const app: Application = express();
+const dbPool = new DatabasePool();
+const redisClient = new RedisClient();
 
-  constructor( dbPool: DatabasePool, redisClient: RedisClient) {
-    this.app = express();
-    this.PORT = process.env.PORT || '8083';
-    this.LOG_DIR = path.join(__dirname, "logs");
-    this.dbPool = dbPool;
-    this.redisClient = redisClient;
+const initCors = () => {
+  const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+  };
 
-    this.initCors();
-    this.initLogger();
-    this.initRoutes();
-    this.initErrorHandling();
+  app.use(cors(corsOptions));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+};
+
+const initLogger = () => {
+  if (!fs.existsSync(LOG_DIR)) {
+    fs.mkdirSync(LOG_DIR);
   }
 
+  const logger = winston.createLogger({
+    level: "debug",
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+    ),
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize(),
+          winston.format.simple()
+        ),
+      }),
+      new winston.transports.File({ filename: path.join(LOG_DIR, "app.log") }),
+      new LokiTransport({
+        host: "http://localhost:3100",
+        labels: { app: "express-app" },
+        json: true,
+        format: winston.format.json(),
+      }),
+    ],
+  });
+
+  const logStream = fs.createWriteStream(path.join(LOG_DIR, "requests.log"), { flags: "a" });
+
+  app.use(morgan("combined", { stream: logStream }));
+  app.use(
+    morgan("dev", {
+      stream: {
+        write: (message) => logger.info(message.trim()),
+      },
+    })
+  );
+
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    logger.info({
+      message: "HTTP Request",
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body,
+    });
+    next();
+  });
+
+  return logger;
+};
+
+const initRoutes = (logger: winston.Logger) => {
+  app.use('/auth', authRoutes(authController, middleware) /*initAuthDependencies*/);
+  app.use('/roles', rolesRoutes(rolesController, middleware) /*initRolesDependencies*/);
+  app.use('/user-management', userRolesRoutes(userRolesController, middleware)/*initRolesDependencies*/);
+  app.use('/users', usersRoutes(usersController, middleware) /*initUsersDependencies*/);
   
+  app.get("/debug-routes", (req, res) => {
+    res.json(app._router.stack.map(layer => layer.route?.path).filter(Boolean));
+  });
 
-  private initCors() {
-    const corsOptions = {
-      origin: '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true,
-      optionsSuccessStatus: 200
-    };
+  app.get("/metrics", async (req: Request, res: Response) => {
+    res.set("Content-Type", promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+  });
 
-    this.app.use(cors(corsOptions));
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
-  }
+  app.get("/endpoints", (req: Request, res: Response) => {
+    const endpoints = listEndpoints(app);
+    res.json(endpoints);
+  });
+};
 
 
-  private initLogger() {
-    if (!fs.existsSync(this.LOG_DIR)) {
-      fs.mkdirSync(this.LOG_DIR);
-    }
-
-    this.logger = winston.createLogger({
-      level: "debug",
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      ),
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          ),
-        }),
-        new winston.transports.File({ filename: path.join(this.LOG_DIR, "app.log") }),
-        new LokiTransport({
-          host: "http://localhost:3100", // Loki хост
-          labels: { app: "express-app" },
-          json: true,
-          format: winston.format.json(),
-        }),
-      ],
+const initErrorHandling = (logger: winston.Logger) => {
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    logger.error({
+      message: "Unhandled Error",
+      error: err.stack,
+      method: req.method,
+      url: req.url,
     });
+    new InternalServerError();
+  });    
+};
 
-    const logStream = fs.createWriteStream(path.join(this.LOG_DIR, "requests.log"), { flags: "a" });
+const initializeApp = async () => {
+  initCors();
+  const logger = initLogger();
+  initRoutes(logger);
+  initErrorHandling(logger);
 
-    this.app.use(morgan("combined", { stream: logStream }));
-    this.app.use(
-      morgan("dev", {
-        stream: {
-          write: (message) => this.logger.info(message.trim()),
-        },
-      })
-    );
+  try {
+    await dbPool.connect();
+    logger.info("Подключение к базе данных установлено");
+    
+    await dbPool.initializeTables();
+    logger.info("База данных успешно инициализирована");
 
-    this.app.use((req: Request, res: Response, next: NextFunction) => {
-      this.logger.info({
-        message: "HTTP Request",
-        method: req.method,
-        url: req.url,
-        headers: req.headers,
-        body: req.body,
-      });
-      next();
+    await redisClient.connect();
+    logger.info("Redis подключён");
+
+    initRoutes(logger);
+    
+    initErrorHandling(logger);
+
+    app.listen(PORT, () => {
+      logger.info(`Сервер запущен на http://localhost:${PORT}`);
     });
+  } catch (err) {
+    logger.error("Ошибка при запуске приложения:", err);
+    process.exit(1);
   }
+};
 
-  private initRoutes() {
-    this.app.use('/auth', authRoutes);
-    this.app.use('/roles', rolesRoutes);
-    this.app.use('/user-management', userManagementRoutes);
-    this.app.use('/users', usersRoutes);
-    this.app.get("/metrics", async (req: Request, res: Response) => {
-      res.set("Content-Type", promClient.register.contentType);
-      res.end(await promClient.register.metrics());
-      res.status(200).json(await promClient.register.metrics());
-    });
-
-    this.app.get("/endpoints", (req: Request, res: Response) => {
-      const endpoints = listEndpoints(this.app);
-      res.json(endpoints);
-    });
-  }
-
-  private initErrorHandling() {
-    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      this.logger.error({
-        message: "Unhandled Error",
-        error: err.stack,
-        method: req.method,
-        url: req.url,
-      });
-      new InternalServerError()
-    });    
-  }
-
-  public start() {
-    this.dbPool
-    .connect()
-      .then(() => {
-        this.app.listen(this.PORT, () => {
-          this.logger.info(`Сервер запущен на http://localhost:${this.PORT}`);
-        });
-      })
-      .then(() => {
-        this.logger.info("Подключение к базе данных установлено");
-      })
-      .then(() => {
-        this.dbPool.initializeTables();
-        this.logger.info("База данных успешно инициализирована");
-      })
-      .then(() => {
-        this.redisClient.connect();
-        this.logger.info("Redis подключён");      
-      })
-      .catch((err) => {
-        this.logger.error("Ошибка подключения к базе данных:", err);
-      });
-  }
-} 
-
+initializeApp();

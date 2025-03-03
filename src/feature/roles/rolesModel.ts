@@ -1,3 +1,4 @@
+import { BadRequestError } from '../../config/400BadRequestError';
 import { InternalServerError } from '../../config/500InternalServerError';
 import { ConnectorDB} from '../../databasePoolService/connectDB';
 
@@ -19,7 +20,7 @@ export class RolesModel {
 
     async getUserRoles(userId: string) {
         try{
-            return await this.db.query(`SELECT * FROM roles WHERE id = ?`, [userId]);
+            return await this.db.query(`SELECT * FROM roles WHERE id = $1`, [userId]);
         }
         catch(err){
             throw new InternalServerError(`${err}`);
@@ -27,16 +28,22 @@ export class RolesModel {
     }
 
     async addRoles(role: string) {
-        try{
-            return await this.db.query(`INSERT INTO roles VALUES (?)`, [role]);
-        } catch(err){
-            throw new InternalServerError(`${err}`);
+        try {
+            const result = await this.db.query(
+                `INSERT INTO roles (name) VALUES ($1) RETURNING id, name`, [role]);
+            return {result};
+        } catch (err: any) {
+            if (err.code === '23505') {
+                throw new BadRequestError(`Роль "${role}" уже существует`);
+            }
+            throw new InternalServerError(`Ошибка базы данных: ${err.message}`);
         }
     }
     
     async deleteRoles(role: string) {
         try{
-            return await this.db.query(`DELETE FROM roles WHERE role = ?`, [role]);
+            const result = await this.db.query(`DELETE FROM roles WHERE name = $1`, [role]);
+            return {result};
         } catch (err){
             throw new InternalServerError(`${err}`);
         }
