@@ -8,8 +8,8 @@ export const usersRoutes = (usersController: UsersController, middleware: Middle
     router.get('/', (req, res) => usersController.getUsers(req, res));
     router.get('/:id', (req, res) => usersController.getUserById(req, res));
     router.get('/username/:username', (req, res) => usersController.getUserByUsername(req, res));
-    router.put('/:id/username', middleware.authMiddleware.bind(middleware), (req, res) => usersController.updateUsername(req, res));
-    router.put('/:id/password', middleware.authMiddleware.bind(middleware), (req, res) => usersController.updatePassword(req, res));
+    router.patch('/:id/username', middleware.authMiddleware.bind(middleware), (req, res) => usersController.updateUsername(req, res));
+    router.patch('/:id/password', middleware.authMiddleware.bind(middleware), (req, res) => usersController.updatePassword(req, res));
     router.delete('/:id', (req, res) => usersController.deleteUser(req, res));
 
     return router;

@@ -39,7 +39,7 @@ export class UsersController {
     async updateUsername(req: Request, res: Response) {
         try{
             const user = await this.usersService.updateUsername(req.params.id, req.body.username);
-            res.status(200).json(`Имя пользователя: ${req.body.username} изменено на ${{user}}`);
+            res.status(200).json(`Имя пользователя: ${req.body.username} изменено`);
         } catch (error) {
             throw new BadRequestError(`error: ${error}`);
         }
@@ -48,7 +48,7 @@ export class UsersController {
     async updatePassword(req: Request, res: Response) {
         try{
             const user = await this.usersService.updatePassword(req.params.id, req.body.password);
-            res.status(200).json(`Пароль пользователя: ${req.body.password} изменен на ${{user}}`);
+            res.status(200).json(`Пароль пользователя: ${req.body.password} изменен`);
         } catch (error) {
             throw new BadRequestError(`error: ${error}`);
         }
@@ -57,7 +57,7 @@ export class UsersController {
     async deleteUser(req: Request, res: Response) {
         try {
             const user = await this.usersService.deleteUser(req.params.id, req.params.accessToken, req.params.refreshToken);
-            res.status(200).json(`Пользователь ${{user}} удален`);
+            res.status(200).json(`Пользователь c id ${req.params.id} удален`);
         } catch (error) {
             throw new BadRequestError(`error: ${error}`);
         }

@@ -12,17 +12,17 @@ export class UserRolesService {
         this.rolesModel = rolesModel
     }
 
-    async assignUserRoles(userId: string, role: string){
+    async assignUserRoles(userId: string, roleId: string){
         const roles = await this.rolesModel.getUserRoles(userId);
-        if (roles.includes(role)) {
+        if (roles.includes(roleId)) {
             throw new ConflictError("Роль уже назначена пользователю");
         }
-        return await this.model.assingRolesUser(userId, role);
+        return await this.model.assingRolesUser(userId, roleId);
     }
 
     async removeRolesUser(userId: string, role: string){
         const roles = await this.rolesModel.getUserRoles(userId);
-        if (!roles.includes(role)) {
+        if (!roles) {
             throw new NotFoundError("Роль не назначена пользователю");
         }
         return await this.model.removeRolesUser(userId, role);

@@ -75,20 +75,26 @@ export class UsersModel {
         }
     }
 
-    async saveUser(username: string, hashedPassword: string) {
-        const sql = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id`;
-        const params = [username, hashedPassword];
-    
+    async saveUser(username: string, hashedPassword: string, role_id: string) {
         try {
-            const result = await this.db.query(sql, params);
-            if (result.rowCount > 0) {
-                return result.rows[0]; // Возвращаем id нового пользователя
-            } else {
+            const userSql = `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id`;
+            const userResult = await this.db.query(userSql, [username, hashedPassword]);
+            
+            if (userResult.rowCount === 0) {
                 throw new InternalServerError('Не удалось создать пользователя');
             }
+            const userId = userResult.rows[0].id;
+            const roleAssignmentSql = `
+                INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`;
+            const roleResult = await this.db.query(roleAssignmentSql, [userId, role_id]);
+            
+            if (roleResult.rowCount === 0) {
+                throw new InternalServerError('Роль "user" не найдена');
+            }
+            return { id: userId };
         } catch (error) {
             console.error('Ошибка при сохранении пользователя:', error);
             throw new InternalServerError('Ошибка при сохранении пользователя');
         }
-    }    
+    }  
 }

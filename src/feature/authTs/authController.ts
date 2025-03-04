@@ -13,10 +13,10 @@ export class AuthController {
 
     async registerUser(req: Request, res: Response) {
         try {
-            const { username, password } = req.body;
+            const { username, password, role_id } = req.body;
             console.log(req.body);
-            console.log('username:', username, 'password:', password);
-            const registerUser = await this.service.register(username, password);
+            console.log('username:', username, 'password:', password, 'role_id', role_id);
+            const registerUser = await this.service.register(username, password, role_id);
             res.status(201).json(registerUser);
         } catch (error) {
             console.error('Registration error:', error);

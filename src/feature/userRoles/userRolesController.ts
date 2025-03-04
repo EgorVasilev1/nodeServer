@@ -12,7 +12,7 @@ export class UserRolesController {
 
     async assignUserRoles(req: Request, res: Response) {
             try {
-                const roles = req.body;
+                const roles = req.body.roles;
                 const id = req.params.id;
                 if (!id) {
                     throw new BadRequestError("Не указан id пользователя");
@@ -23,14 +23,14 @@ export class UserRolesController {
                 const userRoles = await this.service.assignUserRoles(id, roles);
                 res.status(200).json({message: userRoles});
             } catch (error) {
-                throw new InternalServerError("Ошибка при назначении ролей");
+                throw new InternalServerError(`Ошибка при назначении ролей ${error}`);
             }
         }
     
         async removeRolesUser(req: Request, res: Response) {
             try {
                 const id = req.params.id;
-                const roles = req.body;
+                const roles = req.body.roles;
                 if (!id) {
                     throw new BadRequestError("Не указан id пользователя");
                 }
@@ -40,7 +40,7 @@ export class UserRolesController {
                 const removeRolesUser = await this.service.removeRolesUser(id, roles);
                 res.status(200).json({message: removeRolesUser});
             } catch (error){
-                throw new InternalServerError("Ошибка при удалении ролей");
+                throw new InternalServerError(`Ошибка при удалении ролей ${error}`);
             }
         }
     

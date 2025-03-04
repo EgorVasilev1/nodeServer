@@ -19,12 +19,22 @@ export class RolesModel {
     }
 
     async getUserRoles(userId: string) {
-        try{
-            return await this.db.query(`SELECT * FROM roles WHERE id = $1`, [userId]);
+    try {
+        const roleIdQuery = `SELECT role_id FROM user_roles WHERE user_id = $1`;
+        const roleIdResult = await this.db.query(roleIdQuery, [userId]);
+        
+        if (roleIdResult.rows.length === 0) {
+            return [];
         }
-        catch(err){
-            throw new InternalServerError(`${err}`);
-        }
+        
+        const roleId = roleIdResult.rows[0].role_id;
+        const getRoleName = `SELECT * FROM roles WHERE id = $1`;
+        const roleResult = await this.db.query(getRoleName, [roleId]);
+        
+        return roleResult.rows[0];
+    } catch (err) {
+        throw new InternalServerError(`${err}`);
+    }
     }
 
     async addRoles(role: string) {

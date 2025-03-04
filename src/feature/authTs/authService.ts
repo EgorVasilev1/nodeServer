@@ -28,10 +28,10 @@ export class AuthService{
 
     }
     // Регистрация пользователя(хэширование пароля и создание обычного и refresh токенов)
-    async register(username: string, password: string) {
+    async register(username: string, password: string, role_id: string) {
         try {
             const hashedPassword = await this.hashPassword(password);
-            await this.model.saveUser(username, hashedPassword);
+            await this.model.saveUser(username, hashedPassword, role_id);
             const { accessToken, refreshToken } = this.generateTokens(username);
             await this.redis.set(`accessToken_${username}`, accessToken, 3600);  
             await this.redis.set(`refreshToken_${username}`, refreshToken, 604800);  
