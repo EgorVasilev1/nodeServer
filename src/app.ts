@@ -10,17 +10,11 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { RedisClient } from "./config/redis.js";
 import { DatabasePool } from "./config/db.js";
-import { authRoutes } from "./feature/authTs/authRoutes.js";
-import { rolesRoutes } from "./feature/roles/rolesRoutes.js";
-import { userRolesRoutes } from "./feature/userRoles/userRolesRoutes.js";
-import { usersRoutes } from "./feature/users/usersRoutes.js";
-import { InternalServerError } from "./config/500InternalServerError.js";
-import { authController, rolesController, userRolesController, usersController, middleware  } from "./dependencies";
-import { initDependencies } from "./dependencies copy.js";
-import { UserRolesController } from "./feature/userRoles/userRolesController.js";
-import { initAuthDependencies } from "./feature/authTs/index.js";
-import { initRolesDependencies } from "./feature/roles/index.js";
-import { initUsersDependencies } from "./feature/userRoles/index.js";
+import { InternalServerError } from "./errors/500InternalServerError.js";
+import { UserRoutes } from "./feature/users/index.js";
+import { AuthRoutes } from "./feature/authTs/index.js";
+import { RolesRoutes } from "./feature/roles/index.js";
+import { UserRolesRoutes } from "./feature/userRoles/index.js";
 
 dotenv.config();
 
@@ -93,15 +87,14 @@ const initLogger = () => {
     });
     next();
   });
-
   return logger;
 };
 
 const initRoutes = (logger: winston.Logger) => {
-  app.use('/auth', authRoutes(authController, middleware) /*initAuthDependencies*/);
-  app.use('/roles', rolesRoutes(rolesController, middleware) /*initRolesDependencies*/);
-  app.use('/user-management', userRolesRoutes(userRolesController, middleware)/*initRolesDependencies*/);
-  app.use('/users', usersRoutes(usersController, middleware) /*initUsersDependencies*/);
+  app.use('/auth', AuthRoutes);
+  app.use('/roles', RolesRoutes);
+  app.use('/user-management', UserRolesRoutes);
+  app.use('/users', UserRoutes);
   
   app.get("/debug-routes", (req, res) => {
     res.json(app._router.stack.map(layer => layer.route?.path).filter(Boolean));

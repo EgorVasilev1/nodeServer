@@ -1,6 +1,6 @@
 import { UsersModel } from "./usersModel.js";
 import { ConnectorRedis } from "../../redisClientService/connectorRedis.js";
-import { BadRequestError } from "../../config/400BadRequestError.js";
+import { BadRequestError } from "../../errors/400BadRequestError.js";
 
 export class UsersService {
     private userModel: UsersModel;

@@ -1,5 +1,5 @@
-import { BadRequestError } from '../../config/400BadRequestError';
-import { InternalServerError } from '../../config/500InternalServerError';
+import { BadRequestError } from '../../errors/400BadRequestError';
+import { InternalServerError } from '../../errors/500InternalServerError';
 import { ConnectorDB} from '../../databasePoolService/connectDB';
 
 export class RolesModel {

@@ -19,3 +19,5 @@ export class ConnectorRedis {
         await this.redis.del(key);
     }
 }
+
+export const connectRedis = new ConnectorRedis(new RedisClient);

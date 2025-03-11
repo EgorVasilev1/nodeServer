@@ -1,7 +1,7 @@
 import { UserRolesModel } from "./userRolesModel";
 import { RolesModel } from "../roles/rolesModel";
-import { ConflictError } from "../../config/409ConflictError";
-import { NotFoundError } from "../../config/404NotFoundError";
+import { ConflictError } from "../../errors/409ConflictError";
+import { NotFoundError } from "../../errors/404NotFoundError";
 
 export class UserRolesService {
     private model: UserRolesModel;

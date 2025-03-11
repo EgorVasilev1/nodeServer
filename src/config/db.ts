@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
-import { InternalServerError } from './500InternalServerError';
+import { InternalServerError } from '../errors/500InternalServerError';
 
 dotenv.config();
 

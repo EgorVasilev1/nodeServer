@@ -1,7 +1,7 @@
 import { RolesService } from './rolesService.js';
 import { Request, Response } from 'express';
-import { InternalServerError } from '../../config/500InternalServerError.js';
-import { BadRequestError } from '../../config/400BadRequestError.js';
+import { InternalServerError } from '../../errors/500InternalServerError.js';
+import { BadRequestError } from '../../errors/400BadRequestError.js';
 
 export class RolesController {
     private service: RolesService;

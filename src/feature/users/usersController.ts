@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UsersService } from './usersService.js';
-import { BadRequestError } from '../../config/400BadRequestError.js';
+import { BadRequestError } from '../../errors/400BadRequestError.js';
 
 export class UsersController {
     private usersService: UsersService;

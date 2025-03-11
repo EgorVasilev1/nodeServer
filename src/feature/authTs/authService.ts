@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { UsersModel } from "../users/usersModel";
 import { ConnectorRedis } from '../../redisClientService/connectorRedis.js';
-import { NotFoundError } from "../../config/404NotFoundError";
-import { InternalServerError } from "../../config/500InternalServerError";
-import { UnauthorizedError } from "../../config/401UnauthorizedError";
+import { NotFoundError } from "../../errors/404NotFoundError";
+import { InternalServerError } from "../../errors/500InternalServerError";
+import { UnauthorizedError } from "../../errors/401UnauthorizedError";
 dotenv.config();
 
 const SECRET_KEY = process.env.SECRET_KEY;

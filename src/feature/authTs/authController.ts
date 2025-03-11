@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthService } from "./authService.js";
-import { InternalServerError } from '../../config/500InternalServerError.js';
-import { BadRequestError } from '../../config/400BadRequestError.js';
-import { NotFoundError } from '../../config/404NotFoundError.js';
+import { InternalServerError } from '../../errors/500InternalServerError.js';
+import { BadRequestError } from '../../errors/400BadRequestError.js';
+import { NotFoundError } from '../../errors/404NotFoundError.js';
 
 export class AuthController {
     private service: AuthService;

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { UserRolesController } from "./userRolesController";
 import { Middleware } from "../../middleware/middleware";
 
-export const userRolesRoutes = (userRolesController: UserRolesController, middleware: Middleware) => {
+export const userRolesRoutes = (userRolesController: UserRolesController) => {
     const router = Router();
 
     router.post('/assign/:id', (req, res) => userRolesController.assignUserRoles(req, res));

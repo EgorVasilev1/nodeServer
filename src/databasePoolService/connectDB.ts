@@ -15,3 +15,5 @@ export class ConnectorDB {
       return await this.db.getPool();
     }
   }
+
+export const connectDB = new ConnectorDB(new DatabasePool);

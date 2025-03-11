@@ -1,6 +1,6 @@
-import { NotFoundError } from "../../config/404NotFoundError";
-import { ConflictError } from "../../config/409ConflictError";
-import { InternalServerError } from "../../config/500InternalServerError";
+import { NotFoundError } from "../../errors/404NotFoundError";
+import { ConflictError } from "../../errors/409ConflictError";
+import { InternalServerError } from "../../errors/500InternalServerError";
 import {ConnectorDB} from "../../databasePoolService/connectDB";
 import { RolesModel } from "../roles/rolesModel";
 

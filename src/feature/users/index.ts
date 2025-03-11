@@ -1,15 +1,14 @@
-export { usersRoutes } from './usersRoutes';
-export { UsersService } from './usersService';
-import { UserRolesController } from "../../feature/userRoles/userRolesController";
-import { UserRolesService } from "../../feature/userRoles/userRolesService";
-import { UserRolesModel } from "../../feature/userRoles/userRolesModel";
-import { RolesModel } from "../../feature/roles/rolesModel";
-import { ConnectorDB } from "../../databasePoolService/connectDB";
+import { usersRoutes } from "./usersRoutes";
+import { UsersController } from "./usersController";
+import { authMiddleware } from "../../middleware/middleware";
+import { UsersService } from "./usersService";
+import { UsersModel} from "./usersModel"
+import { connectDB } from "../../databasePoolService/connectDB";
+import { connectRedis } from "../../redisClientService/connectorRedis";
 
-export const initUserRolesDependencies = (db: ConnectorDB, rolesModel: RolesModel) => {
-  const userRolesModel = new UserRolesModel(db, rolesModel);
-  const userRolesService = new UserRolesService(userRolesModel, rolesModel);
-  const userRolesController = new UserRolesController(userRolesService);
-  
-  return { userRolesController, userRolesService, userRolesModel };
-};
+const model = new UsersModel(connectDB);
+const service = new UsersService(model, connectRedis);
+const controller = new UsersController(service);
+
+export const UserRoutes = usersRoutes(controller, authMiddleware);
+

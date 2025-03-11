@@ -1,5 +1,5 @@
-import { BadRequestError } from "../../config/400BadRequestError";
-import { InternalServerError } from "../../config/500InternalServerError";
+import { BadRequestError } from "../../errors/400BadRequestError";
+import { InternalServerError } from "../../errors/500InternalServerError";
 import { UserRolesService } from "./userRolesService";
 import { Request, Response } from 'express';
 

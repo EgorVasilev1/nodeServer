@@ -1,5 +1,5 @@
-import { BadRequestError } from '../../config/400BadRequestError.js';
-import { NotFoundError } from '../../config/404NotFoundError.js';
+import { BadRequestError } from '../../errors/400BadRequestError.js';
+import { NotFoundError } from '../../errors/404NotFoundError.js';
 import { RolesModel } from './rolesModel.js';
 
 export class RolesService {

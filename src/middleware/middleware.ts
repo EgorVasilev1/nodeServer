@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { RedisClient } from '../config/redis.js';
 import dotenv from 'dotenv';
-import { UnauthorizedError } from '../config/401UnauthorizedError.js';
-import { NotFoundError } from '../config/404NotFoundError.js';
+import { UnauthorizedError } from '../errors/401UnauthorizedError.js';
+import { NotFoundError } from '../errors/404NotFoundError.js';
 
 dotenv.config();
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -14,7 +14,7 @@ export class Middleware {
       this.redis = redis;
     }
 
-    public async authMiddleware(req, res, next) {
+    public authMiddleware = async(req, res, next) => {
         console.log("Middleware сработал");
         const authHeader = req.headers['authorization'];
         
@@ -56,3 +56,5 @@ export class Middleware {
         }
     }
 }
+
+export const authMiddleware = new Middleware(new RedisClient()).authMiddleware;

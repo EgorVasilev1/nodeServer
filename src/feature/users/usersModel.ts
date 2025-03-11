@@ -1,5 +1,5 @@
-import { NotFoundError } from "../../config/404NotFoundError";
-import { InternalServerError } from "../../config/500InternalServerError";
+import { NotFoundError } from "../../errors/404NotFoundError";
+import { InternalServerError } from "../../errors/500InternalServerError";
 import { ConnectorDB } from "../../databasePoolService/connectDB"
 
 export class UsersModel {
